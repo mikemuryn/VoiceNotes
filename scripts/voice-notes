@@ -4,4 +4,3 @@
 
 export QT_QPA_PLATFORM=offscreen
 exec python3 -m voice_notes.cli "$@"
-

@@ -218,4 +218,3 @@ export HUGGINGFACE_TOKEN="your_hf_token"
 export OPENAI_API_KEY="your_openai_key"
 voice-notes podcast.m4a --model small --device cpu --align --diarize --summarize
 ```
-

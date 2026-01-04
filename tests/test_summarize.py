@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+from openai import APIError, RateLimitError
 
 from voice_notes.summarize import Summary, summarize_transcript
 
@@ -28,7 +29,9 @@ class TestSummarizeTranscript:
         )
 
         assert isinstance(result, Summary)
-        assert result.markdown == "# Summary\n\nThis is a test summary of the transcript."
+        assert (
+            result.markdown == "# Summary\n\nThis is a test summary of the transcript."
+        )
         assert result.text == "# Summary\n\nThis is a test summary of the transcript."
         mock_openai_class.assert_called_once_with(api_key="test_api_key")
         mock_openai_client.chat.completions.create.assert_called_once()
@@ -174,7 +177,9 @@ class TestSummarizeTranscript:
         mock_client.chat.completions.create.return_value = mock_response
         mock_openai_class.return_value = mock_client
 
-        with pytest.raises(RuntimeError, match="Invalid API response: empty choices list"):
+        with pytest.raises(
+            RuntimeError, match="Invalid API response: empty choices list"
+        ):
             summarize_transcript(
                 transcript="Test transcript",
                 api_key="test_api_key",
@@ -273,3 +278,65 @@ class TestSummarizeTranscript:
                 api_key="test_api_key",
             )
 
+    @patch("voice_notes.summarize.OpenAI")
+    def test_rate_limit_error_raises_runtime_error(
+        self,
+        mock_openai_class: MagicMock,
+    ) -> None:
+        """Test that RateLimitError is caught and wrapped in RuntimeError."""
+        mock_client = MagicMock()
+        # Create RateLimitError with required keyword-only parameters
+        mock_response = MagicMock()
+        rate_limit_error = RateLimitError(
+            message="Rate limit exceeded",
+            response=mock_response,
+            body={"error": {"message": "Rate limit exceeded"}},
+        )
+        mock_client.chat.completions.create.side_effect = rate_limit_error
+        mock_openai_class.return_value = mock_client
+
+        with pytest.raises(RuntimeError, match="OpenAI API quota exceeded"):
+            summarize_transcript(
+                transcript="Test transcript",
+                api_key="test_api_key",
+            )
+
+    @patch("voice_notes.summarize.OpenAI")
+    def test_api_error_raises_runtime_error(
+        self,
+        mock_openai_class: MagicMock,
+    ) -> None:
+        """Test that APIError is caught and wrapped in RuntimeError."""
+        mock_client = MagicMock()
+        # Create APIError with required parameters:
+        # request (positional) and body (keyword-only)
+        mock_request = MagicMock()
+        api_error = APIError(
+            message="API error",
+            request=mock_request,
+            body={"error": {"message": "API error"}},
+        )
+        mock_client.chat.completions.create.side_effect = api_error
+        mock_openai_class.return_value = mock_client
+
+        with pytest.raises(RuntimeError, match="OpenAI API error"):
+            summarize_transcript(
+                transcript="Test transcript",
+                api_key="test_api_key",
+            )
+
+    @patch("voice_notes.summarize.OpenAI")
+    def test_none_response_raises_runtime_error(
+        self,
+        mock_openai_class: MagicMock,
+    ) -> None:
+        """Test that None response raises RuntimeError."""
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = None
+        mock_openai_class.return_value = mock_client
+
+        with pytest.raises(RuntimeError, match="Invalid API response: missing choices"):
+            summarize_transcript(
+                transcript="Test transcript",
+                api_key="test_api_key",
+            )

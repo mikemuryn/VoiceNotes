@@ -78,7 +78,9 @@ class TestParseArguments:
 
     def test_optional_flags(self) -> None:
         """Test parsing optional flags."""
-        with patch.object(sys, "argv", ["voice-notes", "test.wav", "--align", "--diarize"]):
+        with patch.object(
+            sys, "argv", ["voice-notes", "test.wav", "--align", "--diarize"]
+        ):
             args = _parse_arguments()
             assert args.align is True
             assert args.diarize is True
@@ -327,13 +329,55 @@ class TestMain:
             segments=[{"text": "Hello world", "start": 0.0, "end": 1.0}],
             language="en",
         )
-        mock_process_align.return_value = [{"text": "Hello world", "start": 0.0, "end": 1.0}]
+        mock_process_align.return_value = [
+            {"text": "Hello world", "start": 0.0, "end": 1.0}
+        ]
 
-        with patch.object(sys, "argv", ["voice-notes", str(mock_audio_file), "--align", "--language", "en"]):
+        with patch.object(
+            sys,
+            "argv",
+            ["voice-notes", str(mock_audio_file), "--align", "--language", "en"],
+        ):
             with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
                 main()
 
         mock_process_align.assert_called_once()
+
+    @patch("voice_notes.cli.transcribe_file")
+    @patch("voice_notes.cli._save_basic_transcript")
+    @patch("voice_notes.cli._process_alignment")
+    @patch("voice_notes.cli.load_dotenv")
+    def test_main_with_alignment_uses_detected_language(
+        self,
+        mock_load_dotenv: MagicMock,
+        mock_process_align: MagicMock,
+        mock_save_basic: MagicMock,
+        mock_transcribe: MagicMock,
+        mock_audio_file: Path,
+        temp_dir: Path,
+    ) -> None:
+        """Test main uses detected language for alignment when --language not set."""
+        from voice_notes.transcribe import WhisperResult
+
+        mock_transcribe.return_value = WhisperResult(
+            text="Hello world",
+            segments=[{"text": "Hello world", "start": 0.0, "end": 1.0}],
+            language="fr",  # Detected language
+        )
+        mock_process_align.return_value = [
+            {"text": "Hello world", "start": 0.0, "end": 1.0}
+        ]
+
+        with patch.object(
+            sys, "argv", ["voice-notes", str(mock_audio_file), "--align"]
+        ):
+            with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
+                main()
+
+        # Verify alignment was called with detected language
+        call_args = mock_process_align.call_args
+        assert call_args is not None
+        assert call_args.kwargs["language"] == "fr"
 
     @patch("voice_notes.cli.transcribe_file")
     @patch("voice_notes.cli._save_basic_transcript")
@@ -358,12 +402,21 @@ class TestMain:
             segments=[{"text": "Hello world", "start": 0.0, "end": 1.0}],
             language="en",
         )
-        mock_process_align.return_value = [{"text": "Hello world", "start": 0.0, "end": 1.0}]
+        mock_process_align.return_value = [
+            {"text": "Hello world", "start": 0.0, "end": 1.0}
+        ]
 
         with patch.object(
             sys,
             "argv",
-            ["voice-notes", str(mock_audio_file), "--align", "--diarize", "--language", "en"],
+            [
+                "voice-notes",
+                str(mock_audio_file),
+                "--align",
+                "--diarize",
+                "--language",
+                "en",
+            ],
         ):
             with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
                 with patch.dict(os.environ, {"HUGGINGFACE_TOKEN": "test_token"}):
@@ -393,7 +446,9 @@ class TestMain:
             language="en",
         )
 
-        with patch.object(sys, "argv", ["voice-notes", str(mock_audio_file), "--summarize"]):
+        with patch.object(
+            sys, "argv", ["voice-notes", str(mock_audio_file), "--summarize"]
+        ):
             with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
                 with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
                     main()
@@ -435,9 +490,153 @@ class TestMain:
             language="en",
         )
 
-        with patch.object(sys, "argv", ["voice-notes", str(mock_audio_file), "--out", str(custom_out)]):
+        with patch.object(
+            sys, "argv", ["voice-notes", str(mock_audio_file), "--out", str(custom_out)]
+        ):
             main()
 
         assert custom_out.exists()
         mock_save_basic.assert_called_once()
 
+    @patch("voice_notes.cli.transcribe_file")
+    @patch("voice_notes.cli._save_basic_transcript")
+    @patch("voice_notes.cli.load_dotenv")
+    @patch("voice_notes.cli.console")
+    def test_main_with_detected_language(
+        self,
+        mock_console: MagicMock,
+        mock_load_dotenv: MagicMock,
+        mock_save_basic: MagicMock,
+        mock_transcribe: MagicMock,
+        mock_audio_file: Path,
+        temp_dir: Path,
+    ) -> None:
+        """Test main function prints detected language when available."""
+        from voice_notes.transcribe import WhisperResult
+
+        mock_transcribe.return_value = WhisperResult(
+            text="Hello world",
+            segments=[{"text": "Hello world", "start": 0.0, "end": 1.0}],
+            language="fr",  # Detected language
+        )
+
+        with patch.object(sys, "argv", ["voice-notes", str(mock_audio_file)]):
+            with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
+                main()
+
+        # Check that detected language was printed
+        language_prints = [
+            call
+            for call in mock_console.print.call_args_list
+            if len(call[0]) > 0 and "Detected language" in str(call[0][0])
+        ]
+        assert len(language_prints) == 1
+
+    @patch("voice_notes.cli.transcribe_file")
+    @patch("voice_notes.cli._save_basic_transcript")
+    @patch("voice_notes.cli.load_dotenv")
+    @patch("voice_notes.cli.console")
+    def test_main_without_detected_language(
+        self,
+        mock_console: MagicMock,
+        mock_load_dotenv: MagicMock,
+        mock_save_basic: MagicMock,
+        mock_transcribe: MagicMock,
+        mock_audio_file: Path,
+        temp_dir: Path,
+    ) -> None:
+        """Test main function does not print language when None."""
+        from voice_notes.transcribe import WhisperResult
+
+        mock_transcribe.return_value = WhisperResult(
+            text="Hello world",
+            segments=[{"text": "Hello world", "start": 0.0, "end": 1.0}],
+            language=None,  # No detected language
+        )
+
+        with patch.object(sys, "argv", ["voice-notes", str(mock_audio_file)]):
+            with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
+                main()
+
+        # Check that detected language was NOT printed
+        language_prints = [
+            call
+            for call in mock_console.print.call_args_list
+            if len(call[0]) > 0 and "Detected language" in str(call[0][0])
+        ]
+        assert len(language_prints) == 0
+
+    @patch("voice_notes.cli.transcribe_file")
+    @patch("voice_notes.cli._save_basic_transcript")
+    @patch("voice_notes.cli._process_summary")
+    @patch("voice_notes.cli.load_dotenv")
+    @patch("voice_notes.cli.console")
+    def test_main_summary_failure_non_fatal(
+        self,
+        mock_console: MagicMock,
+        mock_load_dotenv: MagicMock,
+        mock_process_summary: MagicMock,
+        mock_save_basic: MagicMock,
+        mock_transcribe: MagicMock,
+        mock_audio_file: Path,
+        temp_dir: Path,
+    ) -> None:
+        """Test that summary failures don't crash the program."""
+        from voice_notes.transcribe import WhisperResult
+
+        mock_transcribe.return_value = WhisperResult(
+            text="Hello world",
+            segments=[{"text": "Hello world", "start": 0.0, "end": 1.0}],
+            language="en",
+        )
+        mock_process_summary.side_effect = RuntimeError("API quota exceeded")
+
+        with patch.object(
+            sys, "argv", ["voice-notes", str(mock_audio_file), "--summarize"]
+        ):
+            with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
+                with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
+                    main()  # Should not raise
+
+        # Verify warning was printed
+        warning_prints = [
+            call
+            for call in mock_console.print.call_args_list
+            if len(call[0]) > 0 and "Warning" in str(call[0][0])
+        ]
+        assert len(warning_prints) >= 1
+        mock_save_basic.assert_called_once()  # Basic transcription still completed
+
+    @patch("voice_notes.cli.transcribe_file")
+    @patch("voice_notes.cli._save_basic_transcript")
+    @patch("voice_notes.cli.load_dotenv")
+    @patch("voice_notes.cli.console")
+    def test_main_without_summarize_prints_skip_message(
+        self,
+        mock_console: MagicMock,
+        mock_load_dotenv: MagicMock,
+        mock_save_basic: MagicMock,
+        mock_transcribe: MagicMock,
+        mock_audio_file: Path,
+        temp_dir: Path,
+    ) -> None:
+        """Test that main prints skip message when summarize is not requested."""
+        from voice_notes.transcribe import WhisperResult
+
+        mock_transcribe.return_value = WhisperResult(
+            text="Hello world",
+            segments=[{"text": "Hello world", "start": 0.0, "end": 1.0}],
+            language="en",
+        )
+
+        with patch.object(sys, "argv", ["voice-notes", str(mock_audio_file)]):
+            with patch("voice_notes.cli.default_output_dir", return_value=temp_dir):
+                main()
+
+        # Check that skip message was printed
+        skip_prints = [
+            call
+            for call in mock_console.print.call_args_list
+            if len(call[0]) > 0 and "Skipping summary" in str(call[0][0])
+        ]
+        assert len(skip_prints) == 1

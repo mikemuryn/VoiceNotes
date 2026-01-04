@@ -186,4 +186,3 @@ def mock_diarization_result() -> dict[str, Any]:
             },
         ]
     }
-

@@ -10,8 +10,7 @@ import os
 # This ensures Qt libraries see the environment variable during initialization
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
-from voice_notes.cli import main
+from voice_notes.cli import main  # noqa: E402
 
 if __name__ == "__main__":
     main()
-

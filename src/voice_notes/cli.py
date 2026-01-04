@@ -10,22 +10,31 @@ from __future__ import annotations
 import os
 
 # Set Qt to use offscreen platform BEFORE any other imports
-# This must be set before importing any Qt-dependent libraries (e.g., pyannote.audio, torchaudio)
+# This must be set before importing any Qt-dependent libraries
+# (e.g., pyannote.audio, torchaudio)
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-import argparse
-from pathlib import Path
-from typing import Any
+import argparse  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import Any  # noqa: E402
 
-from dotenv import load_dotenv
-from rich.console import Console
+from dotenv import load_dotenv  # noqa: E402
+from rich.console import Console  # noqa: E402
 
-from voice_notes import transcribe
-from voice_notes.formatting import format_speaker_transcript
-from voice_notes.io_utils import default_output_dir, ensure_dir, write_text
-from voice_notes.summarize import summarize_transcript
-from voice_notes.transcribe import save_segments_json, transcribe_file
-from voice_notes.whisperx_tools import align_transcript, assign_speakers, diarize_audio
+from voice_notes import transcribe  # noqa: E402
+from voice_notes.formatting import format_speaker_transcript  # noqa: E402
+from voice_notes.io_utils import (  # noqa: E402
+    default_output_dir,
+    ensure_dir,
+    write_text,
+)
+from voice_notes.summarize import summarize_transcript  # noqa: E402
+from voice_notes.transcribe import save_segments_json, transcribe_file  # noqa: E402
+from voice_notes.whisperx_tools import (  # noqa: E402
+    align_transcript,
+    assign_speakers,
+    diarize_audio,
+)
 
 console = Console()
 
@@ -41,22 +50,48 @@ def _parse_arguments() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         prog="voice-notes",
-        description="Transcribe locally with Whisper; optionally align and diarize with WhisperX.",
+        description=(
+            "Transcribe locally with Whisper; "
+            "optionally align and diarize with WhisperX."
+        ),
     )
     parser.add_argument("audio_path", type=str, help="Path to audio/video file.")
     parser.add_argument("--model", type=str, default="small", help="Whisper model.")
     parser.add_argument("--device", type=str, default="cpu", choices=["cpu", "cuda"])
-    parser.add_argument("--language", type=str, default=None, help="Language code, e.g. en.")
-    parser.add_argument("--prompt", type=str, default=None, help="Initial prompt for Whisper.")
+    parser.add_argument(
+        "--language", type=str, default=None, help="Language code, e.g. en."
+    )
+    parser.add_argument(
+        "--prompt", type=str, default=None, help="Initial prompt for Whisper."
+    )
     parser.add_argument("--out", type=str, default=None, help="Output directory.")
 
-    parser.add_argument("--align", action="store_true", help="Run WhisperX alignment for better timestamps.")
-    parser.add_argument("--diarize", action="store_true", help="Run diarization and output transcript_by_speaker.txt.")
-    parser.add_argument("--min-speakers", type=int, default=None, help="Minimum speakers (optional).")
-    parser.add_argument("--max-speakers", type=int, default=None, help="Maximum speakers (optional).")
+    parser.add_argument(
+        "--align",
+        action="store_true",
+        help="Run WhisperX alignment for better timestamps.",
+    )
+    parser.add_argument(
+        "--diarize",
+        action="store_true",
+        help="Run diarization and output transcript_by_speaker.txt.",
+    )
+    parser.add_argument(
+        "--min-speakers", type=int, default=None, help="Minimum speakers (optional)."
+    )
+    parser.add_argument(
+        "--max-speakers", type=int, default=None, help="Maximum speakers (optional)."
+    )
 
-    parser.add_argument("--summarize", action="store_true", help="Generate summary.md using API.")
-    parser.add_argument("--summary-model", type=str, default="gpt-4o-mini", help="API model for summary.")
+    parser.add_argument(
+        "--summarize", action="store_true", help="Generate summary.md using API."
+    )
+    parser.add_argument(
+        "--summary-model",
+        type=str,
+        default="gpt-4o-mini",
+        help="API model for summary.",
+    )
     return parser.parse_args()
 
 
@@ -103,7 +138,9 @@ def _process_alignment(
         ValueError: If language is required but not provided.
     """
     if not language:
-        raise ValueError("Alignment needs a language. Pass --language en or let Whisper detect it.")
+        raise ValueError(
+            "Alignment needs a language. Pass --language en or let Whisper detect it."
+        )
 
     aligned_segments = align_transcript(
         audio_path=audio_path,
@@ -140,7 +177,10 @@ def _process_diarization(
     """
     hf_token = os.getenv("HUGGINGFACE_TOKEN", "").strip()
     if not hf_token:
-        raise ValueError("HUGGINGFACE_TOKEN is required for diarization. Set it as an environment variable.")
+        raise ValueError(
+            "HUGGINGFACE_TOKEN is required for diarization. "
+            "Set it as an environment variable."
+        )
 
     diarization_result = diarize_audio(
         audio_path=audio_path,
@@ -178,7 +218,10 @@ def _process_summary(
     """
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not api_key:
-        raise ValueError("OPENAI_API_KEY is required for summarization. Set it as an environment variable.")
+        raise ValueError(
+            "OPENAI_API_KEY is required for summarization. "
+            "Set it as an environment variable."
+        )
 
     summary = summarize_transcript(
         transcript=transcript,
@@ -205,7 +248,11 @@ def main() -> None:
     if not audio_path.exists():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
-    out_dir = Path(args.out).expanduser().resolve() if args.out else default_output_dir(audio_path)
+    out_dir = (
+        Path(args.out).expanduser().resolve()
+        if args.out
+        else default_output_dir(audio_path)
+    )
     ensure_dir(out_dir)
 
     console.print(f"[bold]Input:[/bold] {audio_path}")
@@ -256,7 +303,9 @@ def main() -> None:
             )
         except (ValueError, RuntimeError) as e:
             console.print(f"[yellow]Warning:[/yellow] Summary generation failed: {e}")
-            console.print("[yellow]Transcription and alignment completed successfully.[/yellow]")
+            console.print(
+                "[yellow]Transcription and alignment completed successfully.[/yellow]"
+            )
             # Don't crash - the main work is done
     else:
         console.print("Skipping summary. Run with --summarize to create summary.md.")

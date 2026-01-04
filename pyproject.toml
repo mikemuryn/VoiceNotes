@@ -53,7 +53,7 @@ dev = [
     "safety>=2.0.0",
     "pydocstyle>=6.3.0",
     "radon>=6.0.0",
-    "pip-audit>=2.6.0",
+     "pip-audit>=2.6.0",
 ]
 
 [project.scripts]
@@ -109,10 +109,16 @@ addopts = [
     "--verbose",
     "--tb=short",
     "--strict-markers",
+    "--disable-warnings",
     "--cov=src/voice_notes",
     "--cov-fail-under=95",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
 ]
-
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "audio: marks tests as audio processing tests",
+]

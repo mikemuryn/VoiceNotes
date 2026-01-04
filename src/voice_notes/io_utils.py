@@ -65,4 +65,3 @@ def write_text(path: Path, text: str) -> None:
         path.write_text(text, encoding="utf-8")
     except OSError as e:
         raise OSError(f"Failed to write file {path}: {e}") from e
-

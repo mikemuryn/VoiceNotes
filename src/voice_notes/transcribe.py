@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WhisperResult:
     """Result from Whisper transcription."""
+
     text: str
     segments: List[Dict[str, Any]]
     language: Optional[str] = None
@@ -88,18 +89,24 @@ def transcribe_file(
     if isinstance(result, dict):
         logger.debug(f"Result keys: {list(result.keys())}")
         if "segments" in result:
-            logger.debug(f"Segments type: {type(result['segments'])}, length: {len(result.get('segments', []))}")
+            logger.debug(
+                f"Segments type: {type(result['segments'])}, "
+                f"length: {len(result.get('segments', []))}"
+            )
         if "text" in result:
             logger.debug(f"Text available: {bool(result.get('text'))}")
     else:
         logger.debug(f"Result attributes: {dir(result)}")
         if hasattr(result, "segments"):
-            logger.debug(f"Segments type: {type(result.segments)}, length: {len(getattr(result, 'segments', []))}")
+            logger.debug(
+                f"Segments type: {type(result.segments)}, "
+                f"length: {len(getattr(result, 'segments', []))}"
+            )
 
     # WhisperX can return either a dict or an object
     # Handle both cases with defensive checks
     segments_raw: List[Any] = []
-    
+
     # Try dict access first
     if isinstance(result, dict):
         segments_raw = result.get("segments", [])
@@ -147,7 +154,7 @@ def transcribe_file(
 
     # Extract text - try direct access first, then fallback to segments
     text = ""
-    
+
     # Try to get text directly from result (WhisperX often provides this)
     if isinstance(result, dict):
         text = result.get("text", "").strip()
@@ -155,11 +162,11 @@ def transcribe_file(
         text_value = getattr(result, "text", None)
         if text_value:
             text = str(text_value).strip()
-    
+
     # Fallback: extract from segments if direct text not available
     if not text and text_parts:
         text = " ".join(text_parts).strip()
-    
+
     logger.debug(f"Extracted text length: {len(text)}, segments count: {len(segments)}")
 
     # Get detected language with defensive access
@@ -170,7 +177,7 @@ def transcribe_file(
         detected_language = getattr(result, "language", None) or language
     else:
         detected_language = language  # Fallback to provided language
-    
+
     return WhisperResult(
         text=text,
         segments=segments,
@@ -199,4 +206,3 @@ def save_segments_json(segments: List[Dict[str, Any]], path: Path) -> None:
         raise TypeError(f"Failed to serialize segments to JSON: {e}") from e
     except OSError as e:
         raise OSError(f"Failed to write JSON file {path}: {e}") from e
-

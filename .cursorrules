@@ -1,0 +1,7 @@
+# Voice Notes Project Standards
+
+Follow the standards defined in:
+- `standards/engineering.md` - Technical coding standards
+- `standards/voice.md` - Communication and writing style standards
+
+These standards are versioned and maintained in the `standards/` git submodule.

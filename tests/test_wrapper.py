@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import os
-
-import pytest
-
 
 class TestWrapper:
     """Test cases for wrapper module."""
@@ -24,4 +20,3 @@ class TestWrapper:
 
         assert voice_notes.wrapper.__doc__ is not None
         assert "QT_QPA_PLATFORM" in voice_notes.wrapper.__doc__
-

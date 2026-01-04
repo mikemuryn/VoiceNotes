@@ -131,4 +131,3 @@ class TestFormatSpeakerTranscript:
         result = format_speaker_transcript(segments)
         expected = "0: Hello world\n1: How are you?"
         assert result == expected
-

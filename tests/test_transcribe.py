@@ -352,7 +352,9 @@ class TestTranscribeFile:
 
         assert len(result.segments) == 1
         assert "words" in result.segments[0]
-        assert result.segments[0]["words"] == [{"word": "Hello", "start": 0.0, "end": 0.5}]
+        assert result.segments[0]["words"] == [
+            {"word": "Hello", "start": 0.0, "end": 0.5}
+        ]
 
     @patch("voice_notes.transcribe.whisperx.load_audio")
     @patch("voice_notes.transcribe.whisperx.load_model")
@@ -384,7 +386,9 @@ class TestTranscribeFile:
 class TestSaveSegmentsJson:
     """Test cases for save_segments_json function."""
 
-    def test_save_valid_segments(self, temp_dir: Path, sample_segments: list[dict]) -> None:
+    def test_save_valid_segments(
+        self, temp_dir: Path, sample_segments: list[dict]
+    ) -> None:
         """Test saving valid segments to JSON file."""
         output_path = temp_dir / "segments.json"
         save_segments_json(sample_segments, output_path)
@@ -454,6 +458,7 @@ class TestSaveSegmentsJson:
     def test_save_segments_json_error_handling(self, temp_dir: Path) -> None:
         """Test error handling in save_segments_json."""
         output_path = temp_dir / "segments.json"
+
         # Create a segment with non-serializable data
         class NonSerializable:
             pass
@@ -462,4 +467,3 @@ class TestSaveSegmentsJson:
 
         with pytest.raises(TypeError, match="Failed to serialize segments to JSON"):
             save_segments_json(segments, output_path)  # type: ignore[arg-type]
-

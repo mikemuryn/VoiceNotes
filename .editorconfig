@@ -28,4 +28,3 @@ indent_style = tab
 
 [*.{sh,bash}]
 end_of_line = lf
-

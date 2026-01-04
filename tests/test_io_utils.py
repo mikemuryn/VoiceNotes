@@ -153,4 +153,3 @@ class TestWriteText:
         write_text(file_path, content)
         assert file_path.read_text(encoding="utf-8") == content
         assert len(file_path.read_text(encoding="utf-8")) == 10000
-

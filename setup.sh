@@ -85,4 +85,3 @@ fi
 echo ""
 echo "Verify installation with:"
 echo "  voice-notes --help"
-

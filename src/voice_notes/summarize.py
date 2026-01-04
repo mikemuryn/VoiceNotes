@@ -15,6 +15,7 @@ from openai import APIError, OpenAI, RateLimitError
 @dataclass
 class Summary:
     """Summary result from OpenAI API."""
+
     markdown: str
     text: str
 
@@ -35,7 +36,8 @@ def summarize_transcript(
         Summary object with markdown and text fields.
 
     Raises:
-        ValueError: If API key is not provided, transcript is empty, or model is invalid.
+        ValueError: If API key is not provided, transcript is empty,
+            or model is invalid.
         RuntimeError: If API request fails or response is invalid.
     """
     if not api_key:
@@ -58,7 +60,8 @@ def summarize_transcript(
             messages=[
                 {
                     "role": "system",
-                    "content": """You are summarizing a verbatim transcript from an audio recording.
+                    "content": """You are summarizing a verbatim transcript
+from an audio recording.
 
 First, read the full transcript carefully.
 
@@ -97,7 +100,7 @@ Important rules:
                 },
                 {
                     "role": "user",
-                    "content": f"Summarize the following transcript:\n\n{transcript}",
+                    "content": (f"Summarize the following transcript:\n\n{transcript}"),
                 },
             ],
         )
@@ -105,7 +108,7 @@ Important rules:
         # Defensive access to response structure
         if not response:
             raise RuntimeError("Invalid API response: missing choices")
-        
+
         if not hasattr(response, "choices") or response.choices is None:
             raise RuntimeError("Invalid API response: missing choices")
 
@@ -130,10 +133,11 @@ Important rules:
         )
         raise RuntimeError(error_msg) from e
     except APIError as e:
-        error_msg = f"OpenAI API error: {e}. Please check your API key and account status."
+        error_msg = (
+            f"OpenAI API error: {e}. Please check your API key and account status."
+        )
         raise RuntimeError(error_msg) from e
     except Exception as e:
         if isinstance(e, (ValueError, RuntimeError)):
             raise
         raise RuntimeError(f"Failed to generate summary: {e}") from e
-

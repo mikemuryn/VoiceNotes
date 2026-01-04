@@ -252,7 +252,7 @@ OSError: PortAudio library not found
    ```bash
    # Ubuntu/Debian
    dpkg -l | grep portaudio
-   
+
    # macOS
    brew list portaudio
    ```
@@ -262,7 +262,7 @@ OSError: PortAudio library not found
    # Ubuntu/Debian
    sudo apt-get update
    sudo apt-get install --reinstall portaudio19-dev libportaudio2
-   
+
    # macOS
    brew reinstall portaudio
    ```
@@ -277,7 +277,7 @@ OSError: PortAudio library not found
    ```bash
    # Linux
    export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-   
+
    # macOS
    export DYLD_LIBRARY_PATH=/opt/homebrew/lib:$DYLD_LIBRARY_PATH
    ```
@@ -455,4 +455,3 @@ After installation:
 1. Read the [Quick Start Guide](../quickstart.md)
 2. Read [Usage Documentation](usage.md) for usage examples
 3. Read [Architecture Documentation](../architecture.md) to understand the project structure
-

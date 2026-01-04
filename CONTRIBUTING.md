@@ -43,4 +43,3 @@ This document explains how to contribute to VoiceNotes.
 ## Questions
 
 Open an issue if you have questions or need clarification.
-

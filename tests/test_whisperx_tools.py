@@ -7,11 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from voice_notes.whisperx_tools import (
-    align_transcript,
-    assign_speakers,
-    diarize_audio,
-)
+from voice_notes.whisperx_tools import align_transcript, assign_speakers, diarize_audio
 
 
 class TestAlignTranscript:
@@ -279,7 +275,9 @@ class TestDiarizeAudio:
                 max_speakers=None,
             )
 
-    def test_min_speakers_less_than_one_raises_error(self, mock_audio_file: Path) -> None:
+    def test_min_speakers_less_than_one_raises_error(
+        self, mock_audio_file: Path
+    ) -> None:
         """Test that min_speakers < 1 raises ValueError."""
         with pytest.raises(ValueError, match="min_speakers must be at least 1"):
             diarize_audio(
@@ -290,7 +288,9 @@ class TestDiarizeAudio:
                 max_speakers=None,
             )
 
-    def test_max_speakers_less_than_one_raises_error(self, mock_audio_file: Path) -> None:
+    def test_max_speakers_less_than_one_raises_error(
+        self, mock_audio_file: Path
+    ) -> None:
         """Test that max_speakers < 1 raises ValueError."""
         with pytest.raises(ValueError, match="max_speakers must be at least 1"):
             diarize_audio(
@@ -368,15 +368,21 @@ class TestAssignSpeakers:
         assert result == expected_segments
         mock_assign_word_speakers.assert_called_once()
 
-    def test_empty_segments_returns_empty_list(self, mock_diarization_result: dict) -> None:
+    def test_empty_segments_returns_empty_list(
+        self, mock_diarization_result: dict
+    ) -> None:
         """Test that empty segments returns empty list."""
         result = assign_speakers(mock_diarization_result, [])
         assert result == []
 
-    def test_non_list_segments_raises_value_error(self, mock_diarization_result: dict) -> None:
+    def test_non_list_segments_raises_value_error(
+        self, mock_diarization_result: dict
+    ) -> None:
         """Test that non-list segments raises ValueError."""
         with pytest.raises(ValueError, match="aligned_segments must be a list"):
-            assign_speakers(mock_diarization_result, "not a list")  # type: ignore[arg-type]
+            assign_speakers(
+                mock_diarization_result, "not a list"  # type: ignore[arg-type]
+            )
 
     @patch("voice_notes.whisperx_tools.whisperx.assign_word_speakers")
     def test_invalid_assignment_result_raises_runtime_error(
@@ -388,7 +394,9 @@ class TestAssignSpeakers:
         """Test that invalid assignment result raises RuntimeError."""
         mock_assign_word_speakers.return_value = None  # Invalid result
 
-        with pytest.raises(RuntimeError, match="Speaker assignment returned invalid result"):
+        with pytest.raises(
+            RuntimeError, match="Speaker assignment returned invalid result"
+        ):
             assign_speakers(mock_diarization_result, sample_aligned_segments)
 
     @patch("voice_notes.whisperx_tools.whisperx.assign_word_speakers")
@@ -416,4 +424,3 @@ class TestAssignSpeakers:
 
         with pytest.raises(ValueError, match="Invalid input"):
             assign_speakers(mock_diarization_result, sample_aligned_segments)
-

@@ -12,16 +12,17 @@ import os
 # whisperx imports pyannote.audio and torchaudio which depend on Qt
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass  # noqa: E402
+from pathlib import Path  # noqa: E402
+from typing import Any, Dict, List, Optional  # noqa: E402
 
-import whisperx
+import whisperx  # noqa: E402
 
 
 @dataclass(frozen=True)
 class WhisperXResult:
     """Outputs from WhisperX alignment and optional diarization."""
+
     aligned_segments: List[Dict[str, Any]]
     diarized_segments: Optional[List[Dict[str, Any]]]
 
@@ -61,7 +62,9 @@ def align_transcript(
         return []
 
     try:
-        align_model, metadata = whisperx.load_align_model(language_code=language, device=device)
+        align_model, metadata = whisperx.load_align_model(
+            language_code=language, device=device
+        )
         audio = whisperx.load_audio(str(audio_path))
 
         aligned = whisperx.align(
@@ -122,7 +125,11 @@ def diarize_audio(
     if max_speakers is not None and max_speakers < 1:
         raise ValueError("max_speakers must be at least 1")
 
-    if min_speakers is not None and max_speakers is not None and min_speakers > max_speakers:
+    if (
+        min_speakers is not None
+        and max_speakers is not None
+        and min_speakers > max_speakers
+    ):
         raise ValueError("min_speakers cannot be greater than max_speakers")
 
     try:

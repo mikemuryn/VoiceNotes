@@ -26,11 +26,10 @@ Contains:
 
 ### Configuration
 
-- `pyproject.toml`: Project metadata and build configuration
+- `pyproject.toml`: Project metadata, build configuration, and pytest configuration
 - `environment.yml`: Conda environment specification
 - `requirements.txt`: Python package dependencies
 - `setup.cfg`: Flake8 configuration
-- `pytest.ini`: Test configuration
 - `tox.ini`: Multi-environment testing
 
 ## Development Workflow
@@ -54,4 +53,3 @@ Contains:
 - Faster Whisper: Faster Whisper implementation
 - PyAnnote: Speaker diarization
 - Rich: CLI formatting
-
