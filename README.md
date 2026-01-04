@@ -11,18 +11,68 @@ A CLI tool for transcribing voice recordings using Whisper and related technolog
 
 ## Installation
 
-### Using Conda
+> **For detailed installation instructions, see [docs/INSTALL.md](docs/INSTALL.md)**
+
+### System Dependencies
+
+Before installing VoiceNotes, you need to install system dependencies required by audio processing libraries.
+
+#### Ubuntu/Debian/WSL
 
 ```bash
-conda env create -f environment.yml
-conda activate voice
+sudo apt-get update
+sudo apt-get install -y portaudio19-dev libportaudio2
 ```
+
+#### macOS
+
+```bash
+brew install portaudio
+```
+
+#### Windows
+
+PortAudio is typically included with Python audio packages on Windows. If you encounter issues, you may need to install it manually or use WSL.
+
+### Using Conda (Recommended)
+
+1. **Install system dependencies** (see above)
+
+2. **Create and activate conda environment:**
+   ```bash
+   conda env create -f environment.yml
+   conda activate voice
+   ```
+
+3. **Install VoiceNotes package:**
+   ```bash
+   pip install -e .
+   ```
+
+4. **Verify installation:**
+   ```bash
+   voice-notes --help
+   ```
 
 ### Using pip
 
-```bash
-pip install -e ".[dev]"
-```
+1. **Install system dependencies** (see above)
+
+2. **Create virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install VoiceNotes:**
+   ```bash
+   pip install -e ".[dev]"
+   ```
+
+4. **Verify installation:**
+   ```bash
+   voice-notes --help
+   ```
 
 **Note:** After installation, the `voice-notes` command will be available in your PATH. If it's not found, make sure your Python environment's bin directory is in your PATH, or activate your virtual/conda environment.
 
@@ -71,6 +121,36 @@ voice-notes recording.m4a --align --diarize --min-speakers 2 --max-speakers 3
 On CPU, choose models like:
 - `base` or `small` for daily use
 - Avoid `medium`/`large` unless you really need it
+
+## Troubleshooting
+
+### PortAudio Library Not Found
+
+If you see `OSError: PortAudio library not found`, you need to install system dependencies:
+
+**Ubuntu/Debian/WSL:**
+```bash
+sudo apt-get update
+sudo apt-get install -y portaudio19-dev libportaudio2
+```
+
+**macOS:**
+```bash
+brew install portaudio
+```
+
+After installing, you may need to reinstall Python audio packages:
+```bash
+pip install --force-reinstall pyannote.audio torchaudio
+```
+
+### Command Not Found
+
+If `voice-notes` command is not found:
+1. Make sure your conda/virtual environment is activated
+2. Verify installation: `pip install -e .`
+3. Check PATH includes your environment's bin directory
+4. Try running with Python: `python -m voice_notes.cli --help`
 
 ## Development
 

@@ -2,20 +2,43 @@
 
 ## Installation
 
-### Option 1: Using Conda (Recommended)
+### Step 1: Install System Dependencies
+
+VoiceNotes requires PortAudio for audio processing. Install it based on your system:
+
+**Ubuntu/Debian/WSL:**
+```bash
+sudo apt-get update
+sudo apt-get install -y portaudio19-dev libportaudio2
+```
+
+**macOS:**
+```bash
+brew install portaudio
+```
+
+**Windows:**
+PortAudio is typically included with Python audio packages. If you encounter issues, use WSL or install manually.
+
+### Step 2: Install Python Package
+
+#### Option 1: Using Conda (Recommended)
 
 ```bash
 conda env create -f environment.yml
 conda activate voice
+pip install -e .
 ```
 
-### Option 2: Using pip
+#### Option 2: Using pip
 
 ```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
-**Important:** After installation, verify the command is available:
+### Step 3: Verify Installation
 
 ```bash
 voice-notes --help
@@ -97,6 +120,24 @@ Choose the right model for your needs:
 - Output files are created in the same directory as the input file
 
 ## Troubleshooting
+
+### PortAudio Library Not Found
+
+If you see `OSError: PortAudio library not found`:
+
+1. **Install system dependencies** (see Step 1 above)
+2. **Reinstall audio packages:**
+   ```bash
+   pip install --force-reinstall pyannote.audio torchaudio
+   ```
+
+### Command Not Found
+
+If `voice-notes` command is not found:
+1. Activate your conda/virtual environment
+2. Run `pip install -e .` in the project directory
+3. Verify with `voice-notes --help`
+4. If still not found, try: `python -m voice_notes.cli --help`
 
 ### Out of Memory
 
