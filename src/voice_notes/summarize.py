@@ -63,7 +63,10 @@ def summarize_transcript(
         )
 
         # Defensive access to response structure
-        if not response or not response.choices:
+        if not response:
+            raise RuntimeError("Invalid API response: missing choices")
+        
+        if not hasattr(response, "choices") or response.choices is None:
             raise RuntimeError("Invalid API response: missing choices")
 
         if len(response.choices) == 0:

@@ -29,6 +29,8 @@ class TestTranscribeFile:
         mock_result = MagicMock()
         mock_result.segments = sample_segments
         mock_result.language = "en"
+        # Set text to None so code extracts from segments instead
+        mock_result.text = None
         mock_model.transcribe.return_value = mock_result
         mock_load_model.return_value = mock_model
         mock_load_audio.return_value = b"fake_audio_data"
@@ -190,6 +192,8 @@ class TestTranscribeFile:
         mock_result = MagicMock()
         mock_result.segments = []
         mock_result.language = "en"
+        # Set text to None so code extracts from segments instead
+        mock_result.text = None
         mock_model.transcribe.return_value = mock_result
         mock_load_model.return_value = mock_model
         mock_load_audio.return_value = b"fake_audio_data"
@@ -220,6 +224,8 @@ class TestTranscribeFile:
             {"text": "World", "start": 2.0, "end": 3.0},
         ]
         mock_result.language = "en"
+        # Set text to None so code extracts from segments instead
+        mock_result.text = None
         mock_model.transcribe.return_value = mock_result
         mock_load_model.return_value = mock_model
         mock_load_audio.return_value = b"fake_audio_data"
@@ -231,6 +237,148 @@ class TestTranscribeFile:
         )
 
         assert result.text == "Hello World"
+
+    @patch("voice_notes.transcribe.whisperx.load_audio")
+    @patch("voice_notes.transcribe.whisperx.load_model")
+    def test_transcription_with_dict_result_and_text(
+        self,
+        mock_load_model: MagicMock,
+        mock_load_audio: MagicMock,
+        mock_audio_file: Path,
+    ) -> None:
+        """Test transcription when result is a dict with text attribute."""
+        mock_model = MagicMock()
+        mock_result = {
+            "text": "Direct text from result",
+            "segments": [{"text": "Hello", "start": 0.0, "end": 1.0}],
+            "language": "en",
+        }
+        mock_model.transcribe.return_value = mock_result
+        mock_load_model.return_value = mock_model
+        mock_load_audio.return_value = b"fake_audio_data"
+
+        result = transcribe_file(
+            audio_path=mock_audio_file,
+            model_name="small",
+            device="cpu",
+        )
+
+        assert result.text == "Direct text from result"
+        assert result.language == "en"
+
+    @patch("voice_notes.transcribe.whisperx.load_audio")
+    @patch("voice_notes.transcribe.whisperx.load_model")
+    def test_transcription_with_dict_result_no_language(
+        self,
+        mock_load_model: MagicMock,
+        mock_load_audio: MagicMock,
+        mock_audio_file: Path,
+    ) -> None:
+        """Test transcription when result is a dict without language."""
+        mock_model = MagicMock()
+        mock_result = {
+            "segments": [{"text": "Hello", "start": 0.0, "end": 1.0}],
+        }
+        mock_model.transcribe.return_value = mock_result
+        mock_load_model.return_value = mock_model
+        mock_load_audio.return_value = b"fake_audio_data"
+
+        result = transcribe_file(
+            audio_path=mock_audio_file,
+            model_name="small",
+            device="cpu",
+            language="fr",
+        )
+
+        assert result.language == "fr"  # Falls back to provided language
+
+    @patch("voice_notes.transcribe.whisperx.load_audio")
+    @patch("voice_notes.transcribe.whisperx.load_model")
+    def test_transcription_with_non_list_segments(
+        self,
+        mock_load_model: MagicMock,
+        mock_load_audio: MagicMock,
+        mock_audio_file: Path,
+    ) -> None:
+        """Test transcription when segments is not a list."""
+        mock_model = MagicMock()
+        mock_result = MagicMock()
+        # Set segments to a tuple (iterable but not list)
+        mock_result.segments = ({"text": "Hello", "start": 0.0, "end": 1.0},)
+        mock_result.language = "en"
+        mock_result.text = None
+        mock_model.transcribe.return_value = mock_result
+        mock_load_model.return_value = mock_model
+        mock_load_audio.return_value = b"fake_audio_data"
+
+        result = transcribe_file(
+            audio_path=mock_audio_file,
+            model_name="small",
+            device="cpu",
+        )
+
+        assert len(result.segments) == 1
+        assert result.segments[0]["text"] == "Hello"
+
+    @patch("voice_notes.transcribe.whisperx.load_audio")
+    @patch("voice_notes.transcribe.whisperx.load_model")
+    def test_transcription_with_segments_containing_words(
+        self,
+        mock_load_model: MagicMock,
+        mock_load_audio: MagicMock,
+        mock_audio_file: Path,
+    ) -> None:
+        """Test transcription when segments have words attribute."""
+        mock_model = MagicMock()
+        mock_seg = MagicMock()
+        mock_seg.text = "Hello"
+        mock_seg.start = 0.0
+        mock_seg.end = 1.0
+        mock_seg.words = [{"word": "Hello", "start": 0.0, "end": 0.5}]
+
+        mock_result = MagicMock()
+        mock_result.segments = [mock_seg]
+        mock_result.language = "en"
+        mock_result.text = None
+        mock_model.transcribe.return_value = mock_result
+        mock_load_model.return_value = mock_model
+        mock_load_audio.return_value = b"fake_audio_data"
+
+        result = transcribe_file(
+            audio_path=mock_audio_file,
+            model_name="small",
+            device="cpu",
+        )
+
+        assert len(result.segments) == 1
+        assert "words" in result.segments[0]
+        assert result.segments[0]["words"] == [{"word": "Hello", "start": 0.0, "end": 0.5}]
+
+    @patch("voice_notes.transcribe.whisperx.load_audio")
+    @patch("voice_notes.transcribe.whisperx.load_model")
+    def test_transcription_with_dict_result_non_list_segments(
+        self,
+        mock_load_model: MagicMock,
+        mock_load_audio: MagicMock,
+        mock_audio_file: Path,
+    ) -> None:
+        """Test transcription when dict result has segments that aren't a list."""
+        mock_model = MagicMock()
+        mock_result = {
+            "segments": "not a list",  # Invalid type
+        }
+        mock_model.transcribe.return_value = mock_result
+        mock_load_model.return_value = mock_model
+        mock_load_audio.return_value = b"fake_audio_data"
+
+        result = transcribe_file(
+            audio_path=mock_audio_file,
+            model_name="small",
+            device="cpu",
+        )
+
+        assert result.segments == []
+        assert result.text == ""
 
 
 class TestSaveSegmentsJson:
@@ -302,4 +450,16 @@ class TestSaveSegmentsJson:
         with open(output_path, encoding="utf-8") as f:
             loaded = json.load(f)
         assert loaded == new_segments
+
+    def test_save_segments_json_error_handling(self, temp_dir: Path) -> None:
+        """Test error handling in save_segments_json."""
+        output_path = temp_dir / "segments.json"
+        # Create a segment with non-serializable data
+        class NonSerializable:
+            pass
+
+        segments = [{"text": "Test", "data": NonSerializable()}]
+
+        with pytest.raises(TypeError, match="Failed to serialize segments to JSON"):
+            save_segments_json(segments, output_path)  # type: ignore[arg-type]
 
