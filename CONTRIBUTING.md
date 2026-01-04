@@ -1,6 +1,6 @@
 # Contributing to VoiceNotes
 
-Thank you for your interest in contributing to VoiceNotes! This document provides guidelines and instructions for contributing.
+This document explains how to contribute to VoiceNotes.
 
 ## Development Setup
 
@@ -40,7 +40,7 @@ Thank you for your interest in contributing to VoiceNotes! This document provide
 - Reference issue numbers if applicable
 - Follow conventional commit format when possible
 
-## Questions?
+## Questions
 
-Feel free to open an issue for any questions or clarifications.
+Open an issue if you have questions or need clarification.
 

@@ -22,7 +22,7 @@ voice-notes recording.m4a --model small --device cpu
 
 ### Better Timestamps
 
-For improved timestamp accuracy using WhisperX alignment:
+Get word-level timestamps with WhisperX alignment:
 
 ```bash
 voice-notes recording.m4a --model small --device cpu --align
@@ -33,9 +33,9 @@ voice-notes recording.m4a --model small --device cpu --align
 - `segments.json` - Basic segments
 - `aligned_segments.json` - Aligned segments with improved word-level timestamps
 
-### Speaker-Labeled Transcript (slowest)
+### Speaker-Labeled Transcript
 
-For speaker diarization, you'll need a HuggingFace token. First, set the token:
+Identify different speakers with diarization. Set your HuggingFace token first:
 
 ```bash
 export HUGGINGFACE_TOKEN="your_hf_token"
@@ -56,13 +56,13 @@ voice-notes recording.m4a --model small --device cpu --align --diarize
 
 ### Specifying Speaker Count
 
-If you roughly know how many speakers are in the recording, you can improve diarization accuracy:
+If you know approximately how many speakers are in the recording, specify the count to improve diarization accuracy:
 
 ```bash
 voice-notes recording.m4a --align --diarize --min-speakers 2 --max-speakers 3
 ```
 
-This is particularly useful for:
+Use this for:
 - Interviews (typically 2 speakers)
 - Meetings (known number of participants)
 - Podcasts (usually 2-4 speakers)
@@ -91,12 +91,11 @@ This is particularly useful for:
   - Required when using `--align` if auto-detection fails
 
 - `--prompt` - Initial prompt for Whisper
-  - Can help improve accuracy for specific domains or terminology
+  - Improves accuracy for specific domains or terminology
 
 ### Processing Options
 
-- `--align` - Run WhisperX alignment for better timestamps
-  - Improves word-level timestamp accuracy
+- `--align` - Run WhisperX alignment for word-level timestamps
   - Requires language detection or `--language` flag
 
 - `--diarize` - Run speaker diarization
@@ -105,10 +104,10 @@ This is particularly useful for:
   - Works best with `--align` enabled
 
 - `--min-speakers` - Minimum number of speakers (optional)
-  - Helps improve diarization accuracy
+  - Improves diarization accuracy
 
 - `--max-speakers` - Maximum number of speakers (optional)
-  - Helps improve diarization accuracy
+  - Improves diarization accuracy
 
 ### Output Options
 
@@ -180,14 +179,14 @@ Markdown summary of the transcript (only generated with `--summarize` flag).
 
 ## Performance Tips
 
-1. **CPU Usage**: Use `--device cpu` with `base` or `small` models
-2. **GPU Usage**: Use `--device cuda` with larger models for faster processing
-3. **Model Selection**: 
-   - `tiny`/`base` - Fastest, good for quick transcriptions
-   - `small` - Good balance of speed and accuracy (recommended)
-   - `medium`/`large` - Best accuracy, slower (GPU recommended)
-4. **Diarization**: Only use when needed, as it significantly increases processing time
-5. **Speaker Count**: Providing `--min-speakers` and `--max-speakers` can improve diarization accuracy
+1. CPU Usage: Use `--device cpu` with `base` or `small` models
+2. GPU Usage: Use `--device cuda` with larger models for faster processing
+3. Model Selection:
+   - `tiny` or `base` - Fastest, use for quick transcriptions
+   - `small` - Balanced speed and accuracy
+   - `medium` or `large` - Best accuracy, slower (use with GPU)
+4. Diarization: Use only when needed. It increases processing time.
+5. Speaker Count: Use `--min-speakers` and `--max-speakers` to improve diarization accuracy
 
 ## Common Use Cases
 

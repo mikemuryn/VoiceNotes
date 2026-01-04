@@ -4,7 +4,7 @@
 
 ### Step 1: Install System Dependencies
 
-VoiceNotes requires PortAudio for audio processing. Install it based on your system:
+Install PortAudio for audio processing. Choose commands based on your system:
 
 **Ubuntu/Debian/WSL:**
 ```bash
@@ -18,7 +18,7 @@ brew install portaudio
 ```
 
 **Windows:**
-PortAudio is typically included with Python audio packages. If you encounter issues, use WSL or install manually.
+PortAudio is included with Python audio packages. If you have issues, use WSL or install manually.
 
 ### Step 2: Install Python Package
 
@@ -63,7 +63,7 @@ This creates `transcript.txt` with the plain text transcription.
 
 ### 2. Transcription with Better Timestamps
 
-Get improved timestamp accuracy using WhisperX alignment:
+Get word-level timestamps with WhisperX alignment:
 
 ```bash
 voice-notes recording.m4a --model small --device cpu --align
@@ -76,7 +76,7 @@ This creates:
 
 ### 3. Transcription with Speaker Labels
 
-Identify different speakers (requires HuggingFace token):
+Identify different speakers. You need a HuggingFace token:
 
 ```bash
 export HUGGINGFACE_TOKEN="your_hf_token"
@@ -98,25 +98,25 @@ If you know approximately how many speakers are in the recording:
 voice-notes recording.m4a --align --diarize --min-speakers 2 --max-speakers 3
 ```
 
-This helps improve diarization accuracy when you have a known speaker count.
+Specifying speaker count improves diarization accuracy.
 
 ## Model Selection
 
-Choose the right model for your needs:
+Choose a model based on your needs:
 
 - `tiny` - Fastest, least accurate
-- `base` - Good balance (recommended for CPU)
-- `small` - Better accuracy, still fast
+- `base` - Balanced speed and accuracy (use on CPU)
+- `small` - More accurate, still fast
 - `medium` - High accuracy, slower
-- `large` - Best accuracy, slowest (GPU recommended)
+- `large` - Best accuracy, slowest (use with GPU)
 
 ## Tips
 
-- For CPU usage, stick with `base` or `small` models and use `--device cpu`
-- Use `--align` for better timestamp accuracy
-- Use `--diarize` only when you need speaker identification (it's slower)
-- Set `HUGGINGFACE_TOKEN` environment variable before running diarization
-- Use `--min-speakers` and `--max-speakers` to improve diarization accuracy when you know the speaker count
+- Use `base` or `small` models with `--device cpu` for CPU processing
+- Use `--align` for word-level timestamp accuracy
+- Use `--diarize` only when you need speaker identification
+- Set `HUGGINGFACE_TOKEN` before running diarization
+- Use `--min-speakers` and `--max-speakers` when you know the speaker count
 - Output files are created in the same directory as the input file
 
 ## Troubleshooting
@@ -147,13 +147,12 @@ If `voice-notes` command is not found:
 
 ### Slow Performance
 
-- Use `faster-whisper` backend (default)
-- Choose a smaller model
-- Consider using GPU if available
+- Use a smaller model
+- Use GPU if available
 
 ## Next Steps
 
-- Read the full [README.md](README.md) for detailed documentation
-- Check [CONTRIBUTING.md](CONTRIBUTING.md) if you want to contribute
-- See [examples/](examples/) for more usage examples
+- Read [README.md](README.md) for detailed documentation
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) to contribute
+- See [examples/](examples/) for usage examples
 

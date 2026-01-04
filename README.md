@@ -1,21 +1,21 @@
 # VoiceNotes
 
-A CLI tool for transcribing voice recordings using Whisper and related technologies.
+Transcribe voice recordings using Whisper and related technologies.
 
 ## Features
 
-- Fast transcription using OpenAI Whisper
-- Timestamp alignment for better accuracy
-- Speaker diarization support
-- Multiple output formats (plain text, JSON, speaker-labeled)
+- Transcribe audio files with OpenAI Whisper
+- Align timestamps for word-level accuracy
+- Identify different speakers with diarization
+- Export transcripts in multiple formats (plain text, JSON, speaker-labeled)
 
 ## Installation
 
-> **For detailed installation instructions, see [docs/INSTALL.md](docs/INSTALL.md)**
+See [docs/INSTALL.md](docs/INSTALL.md) for detailed installation instructions.
 
 ### System Dependencies
 
-Before installing VoiceNotes, you need to install system dependencies required by audio processing libraries.
+Install system dependencies before installing VoiceNotes. These are required by audio processing libraries.
 
 #### Ubuntu/Debian/WSL
 
@@ -74,7 +74,7 @@ PortAudio is typically included with Python audio packages on Windows. If you en
    voice-notes --help
    ```
 
-**Note:** After installation, the `voice-notes` command will be available in your PATH. If it's not found, make sure your Python environment's bin directory is in your PATH, or activate your virtual/conda environment.
+After installation, the `voice-notes` command is available in your PATH. If it's not found, activate your virtual or conda environment.
 
 ## Usage
 
@@ -86,15 +86,15 @@ voice-notes recording.m4a --model small --device cpu
 
 ### Better Timestamps
 
-For improved timestamp accuracy using WhisperX alignment:
+Get word-level timestamps with WhisperX alignment:
 
 ```bash
 voice-notes recording.m4a --model small --device cpu --align
 ```
 
-### Speaker-Labeled Transcript (slowest)
+### Speaker-Labeled Transcript
 
-For speaker diarization, you'll need a HuggingFace token:
+Identify different speakers with diarization. You need a HuggingFace token:
 
 ```bash
 export HUGGINGFACE_TOKEN="your_hf_token"
@@ -116,11 +116,11 @@ voice-notes recording.m4a --align --diarize --min-speakers 2 --max-speakers 3
 - `transcript_by_speaker.txt` - Speaker-labeled blocks (only with diarization)
 - `summary.md` - Optional summary (if API key is provided)
 
-## CPU-Specific Tips
+## CPU Usage
 
-On CPU, choose models like:
-- `base` or `small` for daily use
-- Avoid `medium`/`large` unless you really need it
+When running on CPU:
+- Use `base` or `small` models
+- Avoid `medium` or `large` models unless needed
 
 ## Troubleshooting
 
@@ -139,7 +139,7 @@ sudo apt-get install -y portaudio19-dev libportaudio2
 brew install portaudio
 ```
 
-After installing, you may need to reinstall Python audio packages:
+Reinstall Python audio packages after installing system dependencies:
 ```bash
 pip install --force-reinstall pyannote.audio torchaudio
 ```
@@ -147,10 +147,9 @@ pip install --force-reinstall pyannote.audio torchaudio
 ### Command Not Found
 
 If `voice-notes` command is not found:
-1. Make sure your conda/virtual environment is activated
-2. Verify installation: `pip install -e .`
-3. Check PATH includes your environment's bin directory
-4. Try running with Python: `python -m voice_notes.cli --help`
+1. Activate your conda or virtual environment
+2. Run `pip install -e .` to verify installation
+3. Run with Python: `python -m voice_notes.cli --help`
 
 ## Development
 

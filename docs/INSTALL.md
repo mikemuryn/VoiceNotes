@@ -1,6 +1,6 @@
 # VoiceNotes Installation Guide
 
-This guide provides detailed installation instructions for VoiceNotes on different platforms.
+Install VoiceNotes on different platforms with these instructions.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ This guide provides detailed installation instructions for VoiceNotes on differe
 
 ## System Dependencies
 
-VoiceNotes requires PortAudio, a cross-platform audio I/O library, which is used by `pyannote.audio` and `torchaudio` for audio processing.
+VoiceNotes requires PortAudio, a cross-platform audio I/O library. The `pyannote.audio` and `torchaudio` packages use it for audio processing.
 
 ### Ubuntu/Debian/WSL
 
@@ -27,7 +27,7 @@ sudo apt-get update
 sudo apt-get install -y portaudio19-dev libportaudio2
 ```
 
-**Note:** `portaudio19-dev` provides development headers needed to build Python packages, while `libportaudio2` provides the runtime library.
+The `portaudio19-dev` package provides development headers for building Python packages. The `libportaudio2` package provides the runtime library.
 
 ### macOS
 
@@ -46,7 +46,7 @@ brew install portaudio
 
 ### Windows
 
-PortAudio is typically included with Python audio packages on Windows. However, if you encounter issues:
+PortAudio is included with Python audio packages on Windows. If you encounter issues:
 
 1. **Option 1: Use WSL (Recommended)**
    - Install WSL2 and Ubuntu
@@ -80,9 +80,9 @@ brew list portaudio             # macOS
 
 ## Installation Methods
 
-### Method 1: Using Conda (Recommended)
+### Method 1: Using Conda
 
-Conda manages both Python packages and some system dependencies, making it the easiest installation method.
+Conda manages Python packages and some system dependencies. This is the simplest installation method.
 
 #### Step 1: Install System Dependencies
 
@@ -177,11 +177,7 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-**Note:** The script will:
-- Check for system dependencies and attempt to install them
-- Create conda environment (if conda is available) or virtual environment
-- Install VoiceNotes in editable mode
-- Set up pre-commit hooks
+The script checks for system dependencies and installs them, creates a conda or virtual environment, installs VoiceNotes in editable mode, and sets up pre-commit hooks.
 
 You may need sudo privileges for system dependency installation.
 
@@ -195,7 +191,7 @@ After installation, verify everything works:
 voice-notes --help
 ```
 
-Expected output should show the command-line help.
+You should see the command-line help.
 
 ### 2. Test Basic Functionality
 
@@ -351,9 +347,9 @@ PermissionError: [Errno 13] Permission denied
 
 **Solution:**
 
-1. **Don't use sudo with pip** (unless in system Python, which is not recommended)
-2. **Use virtual environment or conda** (recommended)
-3. **Fix permissions:**
+1. Don't use sudo with pip unless using system Python
+2. Use a virtual environment or conda
+3. Fix permissions:
    ```bash
    sudo chown -R $USER:$USER ~/.local
    ```
@@ -376,9 +372,9 @@ PermissionError: [Errno 13] Permission denied
 
 ## Post-Installation Setup
 
-### Pre-commit Hooks (Optional)
+### Pre-commit Hooks
 
-For development, install pre-commit hooks:
+Install pre-commit hooks for development:
 
 ```bash
 pre-commit install
@@ -425,20 +421,16 @@ pip uninstall voice-notes
 
 If you encounter issues not covered here:
 
-1. Check the [README.md](../README.md) for basic usage
-2. Review [Troubleshooting](#troubleshooting) section above
+1. Check [README.md](../README.md) for basic usage
+2. Review the [Troubleshooting](#troubleshooting) section above
 3. Check GitHub Issues for similar problems
-4. Open a new issue with:
-   - Your OS and version
-   - Python version (`python --version`)
-   - Full error message
-   - Steps to reproduce
+4. Open a new issue with your OS and version, Python version (`python --version`), full error message, and steps to reproduce
 
 ## Next Steps
 
-After successful installation:
+After installation:
 
 1. Read the [Quick Start Guide](../quickstart.md)
-2. Check [Usage Documentation](usage.md) for detailed usage examples
-3. Review [Architecture Documentation](../architecture.md) to understand the project structure
+2. Read [Usage Documentation](usage.md) for usage examples
+3. Read [Architecture Documentation](../architecture.md) to understand the project structure
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-VoiceNotes is a CLI tool for transcribing voice recordings using OpenAI Whisper and related technologies.
+VoiceNotes transcribes voice recordings using OpenAI Whisper and related technologies.
 
 ## Project Structure
 
@@ -27,7 +27,7 @@ VoiceNotes/
 
 ### Core Package (`src/voice_notes/`)
 
-The main package containing:
+Contains:
 - CLI interface
 - Transcription logic
 - Whisper integration
@@ -45,23 +45,23 @@ The main package containing:
 
 ## Development Workflow
 
-1. Development happens in feature branches
-2. Code is formatted with Black and isort
-3. Tests are run with pytest
-4. Pre-commit hooks ensure code quality
-5. Changes are submitted via Pull Requests
+1. Create feature branches for development
+2. Format code with Black and isort
+3. Run tests with pytest
+4. Use pre-commit hooks to check code quality
+5. Submit changes via Pull Requests
 
 ## Testing Strategy
 
-- Unit tests for individual components
-- Integration tests for end-to-end workflows
-- Coverage target: 80%+
+- Write unit tests for individual components
+- Write integration tests for end-to-end workflows
+- Maintain coverage at 80% or higher
 
 ## Dependencies
 
 - OpenAI Whisper: Core transcription engine
 - WhisperX: Enhanced Whisper with alignment
-- Faster Whisper: Optimized Whisper implementation
+- Faster Whisper: Faster Whisper implementation
 - PyAnnote: Speaker diarization
 - Rich: CLI formatting
 
