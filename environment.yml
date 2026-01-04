@@ -1,0 +1,17 @@
+name: voice
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - openai-whisper==20231117
+      - whisperx
+      - faster-whisper
+      - torch
+      - torchaudio
+      - pyannote.audio
+      - rich
+      - pydantic>=2
+      - python-dotenv
+      - openai
