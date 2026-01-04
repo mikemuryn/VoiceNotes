@@ -154,5 +154,5 @@ If `voice-notes` command is not found:
 
 - Read [README.md](README.md) for detailed documentation
 - Read [CONTRIBUTING.md](CONTRIBUTING.md) to contribute
-- See [examples/](examples/) for usage examples
 
+- Read [docs/usage.md](docs/usage.md) for comprehensive usage guide

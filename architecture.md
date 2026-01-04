@@ -7,17 +7,7 @@ VoiceNotes transcribes voice recordings using OpenAI Whisper and related technol
 ## Project Structure
 
 ```
-VoiceNotes/
-├── src/
-│   └── voice_notes/      # Main package
-├── apps/                 # Application-specific code
-├── deploy/               # Deployment configurations
-├── docs/                 # Documentation
-├── examples/             # Example scripts and usage
-├── scripts/              # Utility scripts
-├── standards/            # Coding standards and guidelines
-├── tests/                # Test suite
-├── pyproject.toml        # Project configuration
+
 ├── requirements.txt      # Python dependencies
 ├── environment.yml       # Conda environment
 └── README.md             # Project documentation
@@ -55,7 +45,7 @@ Contains:
 
 - Write unit tests for individual components
 - Write integration tests for end-to-end workflows
-- Maintain coverage at 80% or higher
+- Maintain coverage at 95% or higher
 
 ## Dependencies
 

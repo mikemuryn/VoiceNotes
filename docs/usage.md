@@ -114,9 +114,11 @@ Use this for:
 - `--out` - Output directory (optional)
   - Default: same directory as input file
 
-- `--summarize` - Generate summary.md using OpenAI API
+- `--summarize` - Generate structured summary.md using OpenAI API
   - Requires `OPENAI_API_KEY` environment variable
   - Uses GPT-4o-mini by default
+  - Creates a structured summary with Summary, Decisions, Action Items, Open Questions, and Key Quotes sections
+  - If summary generation fails (e.g., API quota exceeded), transcription and alignment still complete successfully
 
 - `--summary-model` - API model for summary (default: `gpt-4o-mini`)
 
@@ -175,7 +177,16 @@ Segments with speaker assignments. Format:
 Human-readable transcript organized by speaker, with clear speaker labels.
 
 ### summary.md
-Markdown summary of the transcript (only generated with `--summarize` flag).
+Structured markdown summary of the transcript (only generated with `--summarize` flag).
+
+The summary includes:
+- **Summary** - 5-8 bullet points capturing core content
+- **Decisions** - Explicit decisions made (or "No explicit decisions recorded")
+- **Action Items** - Tasks with owners and due dates if stated
+- **Open Questions** - Unresolved items (or "No open questions")
+- **Key Quotes** - 2-4 quotes that clarify intent or tone (optional)
+
+The summary is based strictly on the transcript content and does not infer beyond what was said.
 
 ## Performance Tips
 
