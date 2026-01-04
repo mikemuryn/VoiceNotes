@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+import os
+
+# Set Qt to use offscreen platform BEFORE importing whisperx
+# whisperx imports pyannote.audio and torchaudio which depend on Qt
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional

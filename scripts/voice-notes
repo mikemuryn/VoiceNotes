@@ -1,0 +1,7 @@
+#!/bin/bash
+# Wrapper script for voice-notes CLI
+# Sets QT_QPA_PLATFORM=offscreen before launching Python to avoid Qt GUI errors in headless environments
+
+export QT_QPA_PLATFORM=offscreen
+exec python3 -m voice_notes.cli "$@"
+

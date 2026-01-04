@@ -124,6 +124,21 @@ When running on CPU:
 
 ## Troubleshooting
 
+### Qt Platform Plugin Error
+
+If you see errors like:
+```
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" or "wayland"
+This application failed to start because no Qt platform plugin could be initialized.
+```
+
+This happens in headless environments (WSL, servers, containers). The code automatically sets `QT_QPA_PLATFORM=offscreen` to fix this. If you still see the error, set it manually:
+
+```bash
+export QT_QPA_PLATFORM=offscreen
+voice-notes your_audio.m4a
+```
+
 ### PortAudio Library Not Found
 
 If you see `OSError: PortAudio library not found`, you need to install system dependencies:

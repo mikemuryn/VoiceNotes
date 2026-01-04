@@ -13,6 +13,7 @@ rich
 pydantic>=2
 python-dotenv
 openai
+matplotlib
 
 # Optional: Development dependencies
 # Install with: pip install -e ".[dev]"

@@ -217,6 +217,28 @@ python -c "import torch; import whisperx; import pyannote.audio; print('All depe
 
 ## Troubleshooting
 
+### Qt Platform Plugin Error
+
+If you see errors about Qt platform plugins not being able to initialize:
+
+```
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" or "wayland"
+This application failed to start because no Qt platform plugin could be initialized.
+```
+
+This typically occurs in headless environments (WSL, servers, containers). The `voice-notes` command includes a wrapper script that automatically sets `QT_QPA_PLATFORM=offscreen` to prevent this issue.
+
+**Solution:**
+- Ensure you're using the installed `voice-notes` command (not running Python modules directly)
+- Reinstall the package: `pip install -e .`
+- If the issue persists, manually set the environment variable:
+  ```bash
+  export QT_QPA_PLATFORM=offscreen
+  voice-notes your_audio.m4a
+  ```
+
+## Troubleshooting
+
 ### PortAudio Library Not Found
 
 **Error:**

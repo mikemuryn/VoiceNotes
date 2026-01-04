@@ -1,7 +1,12 @@
 from __future__ import annotations
 
-import argparse
 import os
+
+# Set Qt to use offscreen platform BEFORE any other imports
+# This must be set before importing any Qt-dependent libraries (e.g., pyannote.audio, torchaudio)
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+import argparse
 from pathlib import Path
 from typing import Any
 

@@ -37,6 +37,7 @@ dependencies = [
     "pydantic>=2",
     "python-dotenv",
     "openai",
+    "matplotlib",
 ]
 
 [project.optional-dependencies]
@@ -56,7 +57,7 @@ dev = [
 ]
 
 [project.scripts]
-voice-notes = "voice_notes.cli:main"
+voice-notes = "voice_notes.wrapper:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
