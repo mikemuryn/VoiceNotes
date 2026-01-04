@@ -50,6 +50,9 @@ dev = [
     "pre-commit>=3.0.0",
     "bandit>=1.7.0",
     "safety>=2.0.0",
+    "pydocstyle>=6.3.0",
+    "radon>=6.0.0",
+    "pip-audit>=2.6.0",
 ]
 
 [project.scripts]
@@ -106,7 +109,7 @@ addopts = [
     "--tb=short",
     "--strict-markers",
     "--cov=src/voice_notes",
-    "--cov-fail-under=80",
+    "--cov-fail-under=95",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",

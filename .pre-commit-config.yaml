@@ -40,6 +40,14 @@ repos:
         files: ^src/voice_notes/
         pass_filenames: true
         language_version: python3
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --convention=google
+        files: ^src/voice_notes/
+        language_version: python3
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.9
     hooks:
@@ -61,6 +69,21 @@ repos:
         language_version: system
   - repo: local
     hooks:
+      - id: radon-complexity
+        name: Check cyclomatic complexity
+        entry: radon cc --min B --show-complexity
+        language: system
+        types: [python]
+        files: ^src/voice_notes/
+        pass_filenames: true
+      - id: pip-audit
+        name: Check dependencies for known security vulnerabilities
+        entry: pip-audit --requirement requirements.txt
+        language: python
+        types: [python]
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: [pip-audit]
       - id: safety
         name: Check dependencies for known security vulnerabilities
         entry: safety check -r requirements.txt
@@ -69,4 +92,11 @@ repos:
         pass_filenames: false
         always_run: true
         additional_dependencies: [safety]
+      - id: check-standards-reference
+        name: Check standards reference in new modules
+        entry: python scripts/check_standards_reference.py
+        language: system
+        types: [text]
+        files: \.(py)$
+        pass_filenames: true
 

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import argparse
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any
 
 from dotenv import load_dotenv
 from rich.console import Console
 
+from voice_notes import transcribe
 from voice_notes.formatting import format_speaker_transcript
 from voice_notes.io_utils import default_output_dir, ensure_dir, write_text
 from voice_notes.summarize import summarize_transcript
@@ -16,12 +18,15 @@ from voice_notes.whisperx_tools import align_transcript, assign_speakers, diariz
 console = Console()
 
 
-def main() -> None:
-    """Entry point for the voice-notes CLI."""
-    import argparse
+def _parse_arguments() -> argparse.Namespace:
+    """Parse command-line arguments.
 
-    load_dotenv()
+    Returns:
+        Parsed arguments namespace.
 
+    Raises:
+        SystemExit: If argument parsing fails.
+    """
     parser = argparse.ArgumentParser(
         prog="voice-notes",
         description="Transcribe locally with Whisper; optionally align and diarize with WhisperX.",
@@ -40,9 +45,154 @@ def main() -> None:
 
     parser.add_argument("--summarize", action="store_true", help="Generate summary.md using API.")
     parser.add_argument("--summary-model", type=str, default="gpt-4o-mini", help="API model for summary.")
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def _save_basic_transcript(
+    whisper_result: transcribe.WhisperResult,
+    out_dir: Path,
+) -> None:
+    """Save basic transcript and segments.
+
+    Args:
+        whisper_result: Transcription result from Whisper.
+        out_dir: Output directory path.
+    """
+    transcript_path = out_dir / "transcript.txt"
+    segments_path = out_dir / "segments.json"
+
+    write_text(transcript_path, whisper_result.text)
+    save_segments_json(whisper_result.segments, segments_path)
+
+    console.print(f"[green]Wrote:[/green] {transcript_path}")
+    console.print(f"[green]Wrote:[/green] {segments_path}")
+
+
+def _process_alignment(
+    audio_path: Path,
+    segments: list[dict[str, Any]],
+    language: str | None,
+    device: str,
+    out_dir: Path,
+) -> list[dict[str, Any]]:
+    """Process WhisperX alignment if requested.
+
+    Args:
+        audio_path: Path to audio file.
+        segments: Current segments to align.
+        language: Language code for alignment.
+        device: Device to use for processing.
+        out_dir: Output directory path.
+
+    Returns:
+        Aligned segments.
+
+    Raises:
+        ValueError: If language is required but not provided.
+    """
+    if not language:
+        raise ValueError("Alignment needs a language. Pass --language en or let Whisper detect it.")
+
+    aligned_segments = align_transcript(
+        audio_path=audio_path,
+        segments=segments,
+        language=language,
+        device=device,
+    )
+    aligned_path = out_dir / "aligned_segments.json"
+    save_segments_json(aligned_segments, aligned_path)
+    console.print(f"[green]Wrote:[/green] {aligned_path}")
+    return aligned_segments
+
+
+def _process_diarization(
+    audio_path: Path,
+    segments: list[dict[str, Any]],
+    device: str,
+    min_speakers: int | None,
+    max_speakers: int | None,
+    out_dir: Path,
+) -> None:
+    """Process speaker diarization if requested.
+
+    Args:
+        audio_path: Path to audio file.
+        segments: Segments to assign speakers to.
+        device: Device to use for processing.
+        min_speakers: Minimum number of speakers.
+        max_speakers: Maximum number of speakers.
+        out_dir: Output directory path.
+
+    Raises:
+        ValueError: If HUGGINGFACE_TOKEN is not set.
+    """
+    hf_token = os.getenv("HUGGINGFACE_TOKEN", "").strip()
+    if not hf_token:
+        raise ValueError("HUGGINGFACE_TOKEN is required for diarization. Set it as an environment variable.")
+
+    diarization_result = diarize_audio(
+        audio_path=audio_path,
+        device=device,
+        hf_token=hf_token,
+        min_speakers=min_speakers,
+        max_speakers=max_speakers,
+    )
+    diarized_segments = assign_speakers(diarization_result, segments)
+
+    diarized_path = out_dir / "diarized_segments.json"
+    save_segments_json(diarized_segments, diarized_path)
+    console.print(f"[green]Wrote:[/green] {diarized_path}")
+
+    by_speaker_text = format_speaker_transcript(diarized_segments)
+    by_speaker_path = out_dir / "transcript_by_speaker.txt"
+    write_text(by_speaker_path, by_speaker_text)
+    console.print(f"[green]Wrote:[/green] {by_speaker_path}")
+
+
+def _process_summary(
+    transcript: str,
+    model: str,
+    out_dir: Path,
+) -> None:
+    """Process transcript summary if requested.
+
+    Args:
+        transcript: Transcript text to summarize.
+        model: OpenAI model to use for summary.
+        out_dir: Output directory path.
+
+    Raises:
+        ValueError: If OPENAI_API_KEY is not set.
+    """
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is required for summarization. Set it as an environment variable.")
+
+    summary = summarize_transcript(
+        transcript=transcript,
+        model=model,
+        api_key=api_key,
+    )
+    summary_path = out_dir / "summary.md"
+    write_text(summary_path, summary.markdown)
+    console.print(f"[green]Wrote:[/green] {summary_path}")
+
+
+def main() -> None:
+    """Entry point for the voice-notes CLI.
+
+    Raises:
+        FileNotFoundError: If audio file does not exist.
+        ValueError: If required arguments are missing or invalid.
+    """
+    load_dotenv()
+
+    args = _parse_arguments()
 
     audio_path = Path(args.audio_path).expanduser().resolve()
+    if not audio_path.exists():
+        raise FileNotFoundError(f"Audio file not found: {audio_path}")
+
     out_dir = Path(args.out).expanduser().resolve() if args.out else default_output_dir(audio_path)
     ensure_dir(out_dir)
 
@@ -57,14 +207,7 @@ def main() -> None:
         prompt=args.prompt,
     )
 
-    transcript_path = out_dir / "transcript.txt"
-    segments_path = out_dir / "segments.json"
-
-    write_text(transcript_path, whisper_result.text)
-    save_segments_json(whisper_result.segments, segments_path)
-
-    console.print(f"[green]Wrote:[/green] {transcript_path}")
-    console.print(f"[green]Wrote:[/green] {segments_path}")
+    _save_basic_transcript(whisper_result, out_dir)
 
     detected_language = whisper_result.language
     if detected_language:
@@ -73,50 +216,31 @@ def main() -> None:
     segments_for_next = whisper_result.segments
 
     if args.align:
-        if not detected_language and not args.language:
-            raise ValueError("Alignment needs a language. Pass --language en or let Whisper detect it.")
         lang = args.language or detected_language
-        aligned_segments = align_transcript(
+        segments_for_next = _process_alignment(
             audio_path=audio_path,
             segments=segments_for_next,
             language=lang,
             device=args.device,
+            out_dir=out_dir,
         )
-        aligned_path = out_dir / "aligned_segments.json"
-        save_segments_json(aligned_segments, aligned_path)
-        console.print(f"[green]Wrote:[/green] {aligned_path}")
-        segments_for_next = aligned_segments
 
     if args.diarize:
-        hf_token = os.getenv("HUGGINGFACE_TOKEN", "").strip()
-        diarization_result = diarize_audio(
+        _process_diarization(
             audio_path=audio_path,
+            segments=segments_for_next,
             device=args.device,
-            hf_token=hf_token,
             min_speakers=args.min_speakers,
             max_speakers=args.max_speakers,
+            out_dir=out_dir,
         )
-        diarized_segments = assign_speakers(diarization_result, segments_for_next)
-
-        diarized_path = out_dir / "diarized_segments.json"
-        save_segments_json(diarized_segments, diarized_path)
-        console.print(f"[green]Wrote:[/green] {diarized_path}")
-
-        by_speaker_text = format_speaker_transcript(diarized_segments)
-        by_speaker_path = out_dir / "transcript_by_speaker.txt"
-        write_text(by_speaker_path, by_speaker_text)
-        console.print(f"[green]Wrote:[/green] {by_speaker_path}")
 
     if args.summarize:
-        api_key = os.getenv("OPENAI_API_KEY", "").strip()
-        summary = summarize_transcript(
+        _process_summary(
             transcript=whisper_result.text,
             model=args.summary_model,
-            api_key=api_key,
+            out_dir=out_dir,
         )
-        summary_path = out_dir / "summary.md"
-        write_text(summary_path, summary.markdown)
-        console.print(f"[green]Wrote:[/green] {summary_path}")
     else:
         console.print("Skipping summary. Run with --summarize to create summary.md.")
 
