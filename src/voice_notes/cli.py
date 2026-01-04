@@ -248,11 +248,16 @@ def main() -> None:
         )
 
     if args.summarize:
-        _process_summary(
-            transcript=whisper_result.text,
-            model=args.summary_model,
-            out_dir=out_dir,
-        )
+        try:
+            _process_summary(
+                transcript=whisper_result.text,
+                model=args.summary_model,
+                out_dir=out_dir,
+            )
+        except (ValueError, RuntimeError) as e:
+            console.print(f"[yellow]Warning:[/yellow] Summary generation failed: {e}")
+            console.print("[yellow]Transcription and alignment completed successfully.[/yellow]")
+            # Don't crash - the main work is done
     else:
         console.print("Skipping summary. Run with --summarize to create summary.md.")
 
