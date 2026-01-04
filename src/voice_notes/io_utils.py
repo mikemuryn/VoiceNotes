@@ -17,7 +17,7 @@ def default_output_dir(audio_path: Path) -> Path:
     Raises:
         ValueError: If audio_path is invalid.
     """
-    if not audio_path or str(audio_path) == "":
+    if not audio_path or str(audio_path) in ("", "."):
         raise ValueError("audio_path cannot be None or empty")
     return audio_path.parent
 
@@ -32,7 +32,7 @@ def ensure_dir(path: Path) -> None:
         ValueError: If path is invalid.
         OSError: If directory cannot be created.
     """
-    if not path or str(path) == "":
+    if not path or str(path) in ("", "."):
         raise ValueError("path cannot be None or empty")
     try:
         path.mkdir(parents=True, exist_ok=True)
@@ -51,7 +51,7 @@ def write_text(path: Path, text: str) -> None:
         ValueError: If path or text is invalid.
         OSError: If file cannot be written.
     """
-    if not path or str(path) == "":
+    if not path or str(path) in ("", "."):
         raise ValueError("path cannot be None or empty")
     if text is None:
         raise ValueError("text cannot be None")
