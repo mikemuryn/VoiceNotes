@@ -1,3 +1,10 @@
+"""Command-line interface for VoiceNotes.
+
+This module provides the CLI entry point and argument parsing for the
+voice-notes application, orchestrating transcription, alignment, diarization,
+and summarization workflows.
+"""
+
 from __future__ import annotations
 
 import os

@@ -1,3 +1,9 @@
+"""File and directory I/O utilities.
+
+This module provides helper functions for file and directory operations,
+including path validation, directory creation, and text file writing.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path

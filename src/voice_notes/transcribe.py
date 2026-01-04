@@ -1,3 +1,9 @@
+"""Transcription module for audio-to-text conversion using WhisperX.
+
+This module provides functions for transcribing audio files using WhisperX,
+including segment extraction and JSON serialization.
+"""
+
 from __future__ import annotations
 
 import os

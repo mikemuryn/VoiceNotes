@@ -1,3 +1,9 @@
+"""Formatting utilities for transcript output.
+
+This module provides functions for formatting transcription segments,
+particularly for speaker-labeled transcript output.
+"""
+
 from __future__ import annotations
 
 from typing import Any, Dict, List

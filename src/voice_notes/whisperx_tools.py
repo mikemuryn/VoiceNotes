@@ -1,3 +1,9 @@
+"""WhisperX integration for alignment and diarization.
+
+This module provides functions for aligning transcription segments with
+word-level timestamps and performing speaker diarization using WhisperX.
+"""
+
 from __future__ import annotations
 
 import os

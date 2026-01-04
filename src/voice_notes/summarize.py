@@ -1,3 +1,9 @@
+"""Transcript summarization using OpenAI API.
+
+This module provides functionality for generating summaries of transcripts
+using OpenAI's chat completion API.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
