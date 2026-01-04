@@ -7,11 +7,14 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import whisperx
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -74,11 +77,39 @@ def transcribe_file(
     # Transcribe
     result = model.transcribe(audio, language=language)
 
-    # WhisperX returns a TranscriptionResult object with segments attribute
-    # Access segments directly with defensive checks
+    # Debug: Log result structure to understand what we're working with
+    logger.debug(f"Result type: {type(result)}")
+    if isinstance(result, dict):
+        logger.debug(f"Result keys: {list(result.keys())}")
+        if "segments" in result:
+            logger.debug(f"Segments type: {type(result['segments'])}, length: {len(result.get('segments', []))}")
+        if "text" in result:
+            logger.debug(f"Text available: {bool(result.get('text'))}")
+    else:
+        logger.debug(f"Result attributes: {dir(result)}")
+        if hasattr(result, "segments"):
+            logger.debug(f"Segments type: {type(result.segments)}, length: {len(getattr(result, 'segments', []))}")
+
+    # WhisperX can return either a dict or an object
+    # Handle both cases with defensive checks
     segments_raw: List[Any] = []
-    if hasattr(result, "segments") and result.segments:
-        segments_raw = result.segments if isinstance(result.segments, list) else []
+    
+    # Try dict access first
+    if isinstance(result, dict):
+        segments_raw = result.get("segments", [])
+        if not isinstance(segments_raw, list):
+            segments_raw = []
+    # Then try object attribute access
+    elif hasattr(result, "segments"):
+        segments_value = getattr(result, "segments", None)
+        if isinstance(segments_value, list):
+            segments_raw = segments_value
+        elif segments_value is not None:
+            # Convert to list if it's iterable but not a list
+            try:
+                segments_raw = list(segments_value)
+            except (TypeError, ValueError):
+                segments_raw = []
 
     # Convert segments to list of dicts for consistency
     segments: List[Dict[str, Any]] = []
@@ -108,12 +139,29 @@ def transcribe_file(
             if seg_text:
                 text_parts.append(seg_text)
 
-    text = " ".join(text_parts).strip()
+    # Extract text - try direct access first, then fallback to segments
+    text = ""
+    
+    # Try to get text directly from result (WhisperX often provides this)
+    if isinstance(result, dict):
+        text = result.get("text", "").strip()
+    elif hasattr(result, "text"):
+        text_value = getattr(result, "text", None)
+        if text_value:
+            text = str(text_value).strip()
+    
+    # Fallback: extract from segments if direct text not available
+    if not text and text_parts:
+        text = " ".join(text_parts).strip()
+    
+    logger.debug(f"Extracted text length: {len(text)}, segments count: {len(segments)}")
 
     # Get detected language with defensive access
     detected_language: Optional[str] = None
-    if hasattr(result, "language") and result.language:
-        detected_language = result.language
+    if isinstance(result, dict):
+        detected_language = result.get("language") or language
+    elif hasattr(result, "language"):
+        detected_language = getattr(result, "language", None) or language
     else:
         detected_language = language  # Fallback to provided language
     
