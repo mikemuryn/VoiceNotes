@@ -143,9 +143,41 @@ def diarize_audio(
             max_speakers=max_speakers,
         )
         return result
+    except AttributeError as e:
+        # This occurs when Pipeline.from_pretrained() fails and returns None
+        # Usually due to authentication/authorization issues
+        error_msg = (
+            "Failed to load diarization model. This is usually caused by:\n"
+            "1. Invalid or missing HUGGINGFACE_TOKEN\n"
+            "2. Not accepting the model's terms of use at "
+            "https://huggingface.co/pyannote/speaker-diarization-3.1\n"
+            "3. Token doesn't have access to the gated model\n\n"
+            "To fix:\n"
+            "- Get your token from https://huggingface.co/settings/tokens\n"
+            "- Accept the model terms at "
+            "https://huggingface.co/pyannote/speaker-diarization-3.1\n"
+            "- Set HUGGINGFACE_TOKEN environment variable with a valid token"
+        )
+        raise RuntimeError(error_msg) from e
     except Exception as e:
         if isinstance(e, (FileNotFoundError, ValueError)):
             raise
+        # Check if it's an authentication-related error
+        error_str = str(e).lower()
+        if any(
+            keyword in error_str
+            for keyword in ["auth", "token", "unauthorized", "forbidden", "gated"]
+        ):
+            error_msg = (
+                f"Diarization authentication failed: {e}\n\n"
+                "This usually means:\n"
+                "- Your HUGGINGFACE_TOKEN is invalid or expired\n"
+                "- You haven't accepted the model's terms at "
+                "https://huggingface.co/pyannote/speaker-diarization-3.1\n"
+                "- Your token doesn't have access to the gated model\n\n"
+                "Get a new token from https://huggingface.co/settings/tokens"
+            )
+            raise RuntimeError(error_msg) from e
         raise RuntimeError(f"Diarization failed: {e}") from e
 
 
