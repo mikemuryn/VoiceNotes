@@ -16,7 +16,7 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import whisperx
 
@@ -28,16 +28,16 @@ class WhisperResult:
     """Result from Whisper transcription."""
 
     text: str
-    segments: List[Dict[str, Any]]
-    language: Optional[str] = None
+    segments: list[dict[str, Any]]
+    language: str | None = None
 
 
 def transcribe_file(
     audio_path: Path,
     model_name: str,
     device: str,
-    language: Optional[str] = None,
-    prompt: Optional[str] = None,
+    language: str | None = None,
+    prompt: str | None = None,
 ) -> WhisperResult:
     """Transcribe an audio file using WhisperX.
 
@@ -65,7 +65,7 @@ def transcribe_file(
         raise ValueError(f"Invalid device: {device}. Must be 'cpu' or 'cuda'")
 
     # Prepare ASR options if prompt is provided
-    asr_options: Dict[str, Any] = {}
+    asr_options: dict[str, Any] = {}
     if prompt:
         asr_options["initial_prompt"] = prompt
 
@@ -105,7 +105,7 @@ def transcribe_file(
 
     # WhisperX can return either a dict or an object
     # Handle both cases with defensive checks
-    segments_raw: List[Any] = []
+    segments_raw: list[Any] = []
 
     # Try dict access first
     if isinstance(result, dict):
@@ -125,10 +125,10 @@ def transcribe_file(
                 segments_raw = []
 
     # Convert segments to list of dicts for consistency
-    segments: List[Dict[str, Any]] = []
-    text_parts: List[str] = []
+    segments: list[dict[str, Any]] = []
+    text_parts: list[str] = []
     for seg in segments_raw:
-        seg_dict: Dict[str, Any]
+        seg_dict: dict[str, Any]
         if isinstance(seg, dict):
             seg_dict = seg
         else:
@@ -170,7 +170,7 @@ def transcribe_file(
     logger.debug(f"Extracted text length: {len(text)}, segments count: {len(segments)}")
 
     # Get detected language with defensive access
-    detected_language: Optional[str] = None
+    detected_language: str | None = None
     if isinstance(result, dict):
         detected_language = result.get("language") or language
     elif hasattr(result, "language"):
@@ -185,7 +185,7 @@ def transcribe_file(
     )
 
 
-def save_segments_json(segments: List[Dict[str, Any]], path: Path) -> None:
+def save_segments_json(segments: list[dict[str, Any]], path: Path) -> None:
     """Save segments to a JSON file.
 
     Args:

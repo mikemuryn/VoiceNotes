@@ -8,6 +8,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        args: ["--maxkb=1000"]
       - id: check-merge-conflict
       - id: debug-statements
       - id: check-docstring-first
@@ -16,22 +17,11 @@ repos:
     hooks:
       - id: black
         language_version: python3
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
     hooks:
-      - id: isort
-        args:
-          - --profile
-          - black
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
-        args:
-          - --max-line-length=88
-          - --extend-ignore=E203
-          - --per-file-ignores=tests/*:F401,F541,F841
-          - --per-file-ignores=src/voice_notes/cli.py:E402,src/voice_notes/transcribe.py:E402,src/voice_notes/whisperx_tools.py:E402,src/voice_notes/wrapper.py:E402
+      - id: ruff
+        args: [--fix]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.18.2
     hooks:
@@ -85,7 +75,8 @@ repos:
       - id: radon-complexity
         name: Check cyclomatic complexity
         entry: radon cc --min B --show-complexity
-        language: system
+        language: python
+        additional_dependencies: [radon]
         types: [python]
         files: ^src/voice_notes/
         pass_filenames: true

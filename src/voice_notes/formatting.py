@@ -6,10 +6,10 @@ particularly for speaker-labeled transcript output.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 
-def format_speaker_transcript(segments: List[Dict[str, Any]]) -> str:
+def format_speaker_transcript(segments: list[dict[str, Any]]) -> str:
     """Format segments into a speaker-labeled transcript.
 
     Expected WhisperX segments may include:
@@ -32,7 +32,7 @@ def format_speaker_transcript(segments: List[Dict[str, Any]]) -> str:
     if not isinstance(segments, list):
         raise ValueError("segments must be a list")
 
-    lines: List[str] = []
+    lines: list[str] = []
     for seg in segments:
         if not isinstance(seg, dict):
             continue  # Skip invalid segments

@@ -7,7 +7,6 @@ using OpenAI's chat completion API.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from openai import APIError, OpenAI, RateLimitError
 
@@ -23,7 +22,7 @@ class Summary:
 def summarize_transcript(
     transcript: str,
     model: str = "gpt-4o-mini",
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
 ) -> Summary:
     """Generate a summary of the transcript using OpenAI API.
 

@@ -14,7 +14,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from dataclasses import dataclass  # noqa: E402
 from pathlib import Path  # noqa: E402
-from typing import Any, Dict, List, Optional  # noqa: E402
+from typing import Any  # noqa: E402
 
 import whisperx  # noqa: E402
 
@@ -23,16 +23,16 @@ import whisperx  # noqa: E402
 class WhisperXResult:
     """Outputs from WhisperX alignment and optional diarization."""
 
-    aligned_segments: List[Dict[str, Any]]
-    diarized_segments: Optional[List[Dict[str, Any]]]
+    aligned_segments: list[dict[str, Any]]
+    diarized_segments: list[dict[str, Any]] | None
 
 
 def align_transcript(
     audio_path: Path,
-    segments: List[Dict[str, Any]],
-    language: Optional[str],
+    segments: list[dict[str, Any]],
+    language: str | None,
     device: str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Align Whisper segments to get more precise timestamps.
 
     Args:
@@ -90,8 +90,8 @@ def diarize_audio(
     audio_path: Path,
     device: str,
     hf_token: str,
-    min_speakers: Optional[int],
-    max_speakers: Optional[int],
+    min_speakers: int | None,
+    max_speakers: int | None,
 ) -> Any:
     """Run diarization to identify speaker turns.
 
@@ -183,8 +183,8 @@ def diarize_audio(
 
 def assign_speakers(
     diarization_result: Any,
-    aligned_segments: List[Dict[str, Any]],
-) -> List[Dict[str, Any]]:
+    aligned_segments: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     """Assign speakers to aligned segments.
 
     Args:
